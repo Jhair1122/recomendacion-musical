@@ -1,0 +1,6 @@
+target/
+src/main/resources/static/audios/
+src/main/resources/static/repository/
+.idea/
+*.iml
+.vscode/
