@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>StreamFlix AI | Música Inteligente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: white;
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #1DB954, #fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-small {
+            background: rgba(0,0,0,0.5);
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-small:hover {
+            background: #1DB954;
+            transform: scale(1.02);
+        }
+
+        .section {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+        .card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        .card-info {
+            padding: 12px;
+        }
+        .card-info h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-info p {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        .like-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .like-btn:hover {
+            background: #1DB954;
+        }
+
+        .btn-primary {
+            background: #1DB954;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1ed760;
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #ccc;
+        }
+
+        .floating-player {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            width: 320px;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 12px;
+            z-index: 1000;
+            border: 1px solid #1DB954;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .player-info img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        .player-text {
+            flex: 1;
+        }
+        .player-text div:first-child {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .player-text div:last-child {
+            font-size: 11px;
+            color: #aaa;
+        }
+        .audio-controls audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+        }
+        .login-box {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            width: 340px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .login-box h2 {
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        .login-box input {
+            width: 100%;
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 40px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 15px;
+        }
+        .login-box input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.3);
+        }
+        .error {
+            color: #ff8888;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 700px) {
+            .cards { grid-template-columns: repeat(2, 1fr); }
+            .floating-player { width: 90%; left: 5%; right: 5%; bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Pantallas Login/Registro -->
+<div id="loginContainer" class="login-container">
+    <div class="login-box">
+        <h2>🎵 StreamFlix AI</h2>
+        <input type="text" id="loginUsername" placeholder="Usuario">
+        <input type="password" id="loginPassword" placeholder="Contraseña">
+        <button id="btnLogin" class="btn-primary" style="width:100%; margin-bottom:10px;">Iniciar Sesión</button>
+        <button id="btnShowRegistro" class="btn-secondary" style="width:100%;">Registrarse</button>
+        <div id="loginError" class="error"></div>
+    </div>
+</div>
+
+<div id="registroContainer" class="login-container hidden">
+    <div class="login-box">
+        <h2>✨ Registro</h2>
+        <input type="text" id="regUsername" placeholder="Usuario">
+        <input type="password" id="regPassword" placeholder="Contraseña">
+        <button id="btnRegistrar" class="btn-primary" style="width:100%; margin-bottom:10px;">Registrar</button>
+        <button id="btnBackLogin" class="btn-secondary" style="width:100%;">Volver</button>
+        <div id="regError" class="error"></div>
+    </div>
+</div>
+
+<!-- App principal -->
+<div id="appContainer" class="hidden">
+    <div class="container">
+        <header>
+            <div class="logo">🎧 StreamFlix AI</div>
+            <div class="user-info">
+                <span id="userName"></span>
+                <button id="btnLogout" class="btn-small">Cerrar sesión</button>
+            </div>
+        </header>
+
+        <div class="section">
+            <h2>🔍 Recomendaciones por Similitud</h2>
+            <div id="similitudCards" class="cards">Cargando...</div>
+        </div>
+
+        <div class="section">
+            <h2>🌳 Recomendaciones con Árbol de Decisión (IA)</h2>
+            <div id="arbolCards" class="cards">Cargando...</div>
+        </div>
+
+        <div class="section">
+            <h2>🎵 Catálogo General</h2>
+            <div id="catalogoCards" class="cards">Cargando...</div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Playlist Recursiva</h2>
+            <button id="btnRecursivo" class="btn-primary">Generar Playlist (profundidad 5)</button>
+            <div id="recursivoCards" class="cards" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Reproductor flotante -->
+    <div id="floatingPlayer" class="floating-player hidden">
+        <div class="player-info">
+            <img id="playerImg" src="https://picsum.photos/id/100/50" alt="portada">
+            <div class="player-text">
+                <div id="playerTitle">Selecciona una canción</div>
+                <div id="playerArtist">-</div>
+            </div>
+        </div>
+        <div class="audio-controls">
+            <audio id="audioPlayer" controls></audio>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== VARIABLES GLOBALES ====================
+    let currentUser = null;
+    let todasCanciones = [];
+
+    // ==================== FUNCIONES AUXILIARES ====================
+    async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+        }
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await res.json();
+        } else {
+            return await res.text();
+        }
+    }
+
+    function mostrarLogin() {
+        document.getElementById('loginContainer').classList.remove('hidden');
+        document.getElementById('registroContainer').classList.add('hidden');
+        document.getElementById('appContainer').classList.add('hidden');
+        document.getElementById('loginError').innerText = '';
+    }
+
+    function mostrarRegistro() {
+        document.getElementById('loginContainer').classList.add('hidden');
+        document.getElementById('registroContainer').classList.remove('hidden');
+        document.getElementById('regError').innerText = '';
+    }
+
+    // ==================== LOGIN / REGISTRO ====================
+    async function login() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        if (!username || !password) {
+            document.getElementById('loginError').innerText = 'Complete todos los campos';
+            return;
+        }
+        try {
+            const result = await fetchJson('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (result === 'ok') {
+                await cargarUsuarioActual();
+            } else {
+                document.getElementById('loginError').innerText = 'Usuario o contraseña incorrectos';
+            }
+        } catch(e) {
+            document.getElementById('loginError').innerText = 'Error de conexión: ' + e.message;
+        }
+    }
+
+    async function registrar() {
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+        if (!username || !password) {
+            document.getElementById('regError').innerText = 'Complete todos los campos';
+            return;
+        }
+        try {
+            const result = await fetchJson('/api/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (result === 'ok') {
+                await cargarUsuarioActual();
+            } else {
+                document.getElementById('regError').innerText = 'El usuario ya existe';
+            }
+        } catch(e) {
+            document.getElementById('regError').innerText = 'Error de conexión: ' + e.message;
+        }
+    }
+
+    async function logout() {
+        try {
+            await fetch('/api/logout', { method: 'POST' });
+        } catch(e) {}
+        currentUser = null;
+        document.getElementById('appContainer').classList.add('hidden');
+        document.getElementById('floatingPlayer').classList.add('hidden');
+        mostrarLogin();
+    }
+
+    async function cargarUsuarioActual() {
+        try {
+            const user = await fetchJson('/api/usuario-actual');
+            if (user && user.id) {
+                currentUser = user;
+                document.getElementById('userName').innerText = user.nombre;
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('registroContainer').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                await cargarTodasCanciones();
+                await cargarRecomendaciones();
+                mostrarCatalogoGeneral();
+            } else {
+                mostrarLogin();
+            }
+        } catch(e) {
+            console.error('Error cargando usuario:', e);
+            mostrarLogin();
+        }
+    }
+
+    // ==================== CARGA DE DATOS ====================
+    async function cargarTodasCanciones() {
+        try {
+            todasCanciones = await fetchJson('/api/canciones/todas') || [];
+            console.log('Catálogo cargado:', todasCanciones.length);
+        } catch(e) {
+            console.error('Error cargando catálogo:', e);
+            todasCanciones = [];
+        }
+    }
+
+    async function cargarRecomendaciones() {
+        try {
+            const sim = await fetchJson('/api/recomendar/similitud');
+            renderCards(sim || [], 'similitudCards');
+            const arbol = await fetchJson('/api/recomendar/arbol');
+            renderCards(arbol || [], 'arbolCards');
+        } catch(e) {
+            console.error('Error en recomendaciones:', e);
+            renderCards([], 'similitudCards');
+            renderCards([], 'arbolCards');
+        }
+    }
+
+    function mostrarCatalogoGeneral() {
+        const container = document.getElementById('catalogoCards');
+        if (container && todasCanciones.length) {
+            renderCards(todasCanciones.slice(0, 30), 'catalogoCards'); // Muestra hasta 30
+        }
+    }
+
+    function renderCards(canciones, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (!canciones.length) {
+            container.innerHTML = '<div class="loading">No hay canciones aún. ¡Da like para recibir recomendaciones!</div>';
+            return;
+        }
+        container.innerHTML = canciones.map(c => `
+            <div class="card" data-id="${c.id}">
+                <img src="${c.portadaUrl || 'https://picsum.photos/id/100/200'}" 
+                     onerror="this.src='https://picsum.photos/id/100/200'">
+                <div class="card-info">
+                    <h3>${escapeHtml(c.titulo)}</h3>
+                    <p>${escapeHtml(c.artista)} • ${escapeHtml(c.genero)}</p>
+                    <button class="like-btn" data-id="${c.id}">❤️ Like</button>
+                </div>
+            </div>
+        `).join('');
+
+        container.querySelectorAll('.card').forEach(card => {
+            const id = parseInt(card.dataset.id);
+            card.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('like-btn')) {
+                    reproducirCancion(id);
+                }
+            });
+        });
+        container.querySelectorAll('.like-btn').forEach(btn => {
+            const id = parseInt(btn.dataset.id);
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                darLike(id);
+            });
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    async function darLike(id) {
+        try {
+            await fetch(`/api/like/${id}`, { method: 'POST' });
+            await cargarRecomendaciones();
+        } catch(e) {
+            console.error('Error al dar like:', e);
+        }
+    }
+
+    // ==================== REPRODUCCIÓN (AUDIO LOCAL) ====================
+    function reproducirCancion(id) {
+        const cancion = todasCanciones.find(c => c.id === id);
+        if (!cancion) return;
+
+        const playerDiv = document.getElementById('floatingPlayer');
+        playerDiv.classList.remove('hidden');
+
+        document.getElementById('playerTitle').innerText = cancion.titulo;
+        document.getElementById('playerArtist').innerText = cancion.artista;
+        document.getElementById('playerImg').src = cancion.portadaUrl || 'https://picsum.photos/id/100/50';
+
+        const audioEl = document.getElementById('audioPlayer');
+        audioEl.pause();
+        audioEl.src = cancion.urlPreview || '';
+        audioEl.load();
+        audioEl.play().catch(e => console.log('Error reproduciendo audio:', e));
+    }
+
+    // ==================== PLAYLIST RECURSIVA ====================
+    async function generarPlaylistRecursiva() {
+        const container = document.getElementById('recursivoCards');
+        container.innerHTML = '<div class="loading">Generando playlist recursiva...</div>';
+        if (todasCanciones.length === 0) await cargarTodasCanciones();
+        if (!todasCanciones.length) {
+            container.innerHTML = '<div class="loading">No hay canciones disponibles</div>';
+            return;
+        }
+        const semilla = todasCanciones[0].id;
+        try {
+            const lista = await fetchJson(`/api/playlist/recursiva/${semilla}/5`);
+            if (lista && lista.length) renderCards(lista, 'recursivoCards');
+            else container.innerHTML = '<div class="loading">No se pudo generar playlist</div>';
+        } catch(e) {
+            container.innerHTML = '<div class="loading">Error al generar playlist</div>';
+        }
+    }
+
+    // ==================== EVENTOS ====================
+    document.getElementById('btnLogin').addEventListener('click', login);
+    document.getElementById('btnShowRegistro').addEventListener('click', mostrarRegistro);
+    document.getElementById('btnRegistrar').addEventListener('click', registrar);
+    document.getElementById('btnBackLogin').addEventListener('click', mostrarLogin);
+    document.getElementById('btnLogout').addEventListener('click', logout);
+    document.getElementById('btnRecursivo').addEventListener('click', generarPlaylistRecursiva);
+
+    window.onload = () => {
+        cargarUsuarioActual();
+    };
+</script>
+</body>
+</html>
