@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>StreamFlix AI | Música Inteligente</title>
+    <!-- Font Awesome 6 (gratuito) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,336 +14,581 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: white;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: radial-gradient(circle at 10% 20%, #0a0a1a, #03030c);
+            color: #fff;
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 100px; /* espacio para el reproductor fijo */
+            overflow-x: hidden;
         }
 
+        /* Animación de fondo sutil */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(29,185,84,0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        /* Partículas simples (efecto 3d/estilo) */
+        .particle {
+            position: fixed;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            animation: floatParticle 20s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Contenedor principal */
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 24px;
         }
 
-        header {
+        /* Header tipo Spotify */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            margin-bottom: 30px;
+            padding: 16px 0;
+            margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
 
         .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1DB954, #1ed760);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            color: #1DB954;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #userName {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: #ff4d4d;
+            transform: scale(1.02);
+        }
+
+        /* Secciones con glassmorphism */
+        .section {
+            background: rgba(18, 18, 24, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .section:hover {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        }
+
+        .section h2 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section h2 i {
+            font-size: 28px;
+            color: #1DB954;
+        }
+
+        /* Grid de canciones estilo Spotify */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 24px;
+        }
+
+        /* Tarjeta 3D con hover */
+        .music-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        .music-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.6);
+            border-color: rgba(29,185,84,0.4);
+            background: rgba(20,20,30,0.7);
+        }
+
+        .card-img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .music-card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        .card-info {
+            padding: 16px 14px;
+        }
+
+        .card-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-info p {
+            font-size: 13px;
+            color: #b3b3b3;
+            margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .like-button {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .like-button i {
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .like-button:hover {
+            background: #1DB954;
+            transform: scale(1.02);
+        }
+
+        .like-button:hover i {
+            transform: scale(1.1);
+        }
+
+        /* botón principal recursivo */
+        .btn-recursive {
+            background: linear-gradient(95deg, #1DB954, #1aa34a);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            color: white;
             font-weight: bold;
-            background: linear-gradient(45deg, #1DB954, #fff);
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-recursive:hover {
+            transform: scale(1.02);
+            background: #1ed760;
+            box-shadow: 0 8px 20px rgba(29,185,84,0.3);
+        }
+
+        /* Reproductor inferior estilo Spotify */
+        .player-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 24px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .player-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .player-track {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 180px;
+        }
+
+        .player-track img {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .player-track-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-track-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .player-track-artist {
+            font-size: 12px;
+            color: #b3b3b3;
+        }
+
+        .player-controls {
+            flex: 2;
+            min-width: 200px;
+            display: flex;
+            justify-content: center;
+        }
+
+        audio {
+            width: 100%;
+            max-width: 450px;
+            height: 40px;
+            border-radius: 40px;
+            background: #1a1a24;
+        }
+
+        /* Estilos para el audio nativo (mejor aspecto) */
+        audio::-webkit-media-controls-panel {
+            background-color: #282c34;
+        }
+        audio::-webkit-media-controls-play-button {
+            background-color: #1DB954;
+            border-radius: 50%;
+        }
+
+        /* Pantallas de login/registro modernas */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .auth-card {
+            background: rgba(20,20,30,0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 40px 32px;
+            width: 380px;
+            text-align: center;
+            border: 1px solid rgba(29,185,84,0.3);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.5);
+            animation: fadeUp 0.3s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-card h2 {
+            font-size: 32px;
+            margin-bottom: 28px;
+            background: linear-gradient(135deg, #fff, #1DB954);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
-        .user-info {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .btn-small {
-            background: rgba(0,0,0,0.5);
-            padding: 8px 18px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-small:hover {
-            background: #1DB954;
-            transform: scale(1.02);
-        }
-
-        .section {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .section h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: rgba(0,0,0,0.5);
-            border-radius: 16px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-        .card img {
+        .auth-card input {
             width: 100%;
-            height: 160px;
-            object-fit: cover;
-        }
-        .card-info {
-            padding: 12px;
-        }
-        .card-info h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .card-info p {
-            font-size: 12px;
-            color: #ccc;
-            margin-bottom: 8px;
-        }
-        .like-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            padding: 5px 12px;
-            border-radius: 30px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 60px;
             color: white;
-            font-size: 11px;
-            cursor: pointer;
+            font-size: 15px;
+            outline: none;
             transition: 0.2s;
         }
-        .like-btn:hover {
-            background: #1DB954;
+
+        .auth-card input:focus {
+            border-color: #1DB954;
+            background: rgba(255,255,255,0.15);
         }
 
         .btn-primary {
             background: #1DB954;
+            width: 100%;
+            padding: 12px;
             border: none;
-            padding: 10px 24px;
-            border-radius: 40px;
-            color: white;
+            border-radius: 60px;
             font-weight: bold;
-            cursor: pointer;
             font-size: 16px;
+            color: white;
+            cursor: pointer;
             transition: 0.2s;
+            margin-top: 8px;
         }
+
         .btn-primary:hover {
             background: #1ed760;
-            transform: scale(1.02);
+            transform: scale(1.01);
         }
+
         .btn-secondary {
-            background: rgba(255,255,255,0.15);
+            background: transparent;
             border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 20px;
-            border-radius: 40px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 60px;
             color: white;
             cursor: pointer;
+            margin-top: 12px;
             transition: 0.2s;
         }
+
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
         }
 
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #ccc;
-        }
-
-        .floating-player {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            width: 320px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 12px;
-            z-index: 1000;
-            border: 1px solid #1DB954;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .player-info img {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            object-fit: cover;
-        }
-        .player-text {
-            flex: 1;
-        }
-        .player-text div:first-child {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .player-text div:last-child {
-            font-size: 11px;
-            color: #aaa;
-        }
-        .audio-controls audio {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-        }
-        .login-box {
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 30px;
-            text-align: center;
-            width: 340px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .login-box h2 {
-            margin-bottom: 25px;
-            font-size: 28px;
-        }
-        .login-box input {
-            width: 100%;
-            margin: 12px 0;
-            padding: 12px;
-            border-radius: 40px;
-            border: none;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            font-size: 15px;
-        }
-        .login-box input:focus {
-            outline: none;
-            background: rgba(255,255,255,0.3);
-        }
-        .error {
-            color: #ff8888;
-            margin-top: 12px;
+        .error-msg {
+            color: #ff6b6b;
             font-size: 13px;
+            margin-top: 12px;
         }
+
         .hidden {
             display: none !important;
         }
 
-        @media (max-width: 700px) {
-            .cards { grid-template-columns: repeat(2, 1fr); }
-            .floating-player { width: 90%; left: 5%; right: 5%; bottom: 10px; }
+        /* loading personalizado */
+        .loading-skeleton {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* notificaciones tipo toast */
+        .toast-notify {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: #1DB954;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1100;
+            animation: fadeInOut 2s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(30px);}
+            15% { opacity: 1; transform: translateX(0);}
+            85% { opacity: 1; transform: translateX(0);}
+            100% { opacity: 0; transform: translateX(30px);}
+        }
+
+        @media (max-width: 680px) {
+            .container { padding: 16px; }
+            .cards-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+            .player-track { min-width: 140px; }
+            .player-track img { width: 40px; height: 40px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Pantallas Login/Registro -->
-<div id="loginContainer" class="login-container">
-    <div class="login-box">
-        <h2>🎵 StreamFlix AI</h2>
-        <input type="text" id="loginUsername" placeholder="Usuario">
+<!-- Pantalla Login -->
+<div id="loginContainer" class="modal-overlay">
+    <div class="auth-card">
+        <h2><i class="fas fa-headphones"></i> StreamFlix AI</h2>
+        <input type="text" id="loginUsername" placeholder="Usuario" autocomplete="off">
         <input type="password" id="loginPassword" placeholder="Contraseña">
-        <button id="btnLogin" class="btn-primary" style="width:100%; margin-bottom:10px;">Iniciar Sesión</button>
-        <button id="btnShowRegistro" class="btn-secondary" style="width:100%;">Registrarse</button>
-        <div id="loginError" class="error"></div>
+        <button id="btnLogin" class="btn-primary">Iniciar Sesión</button>
+        <button id="btnShowRegistro" class="btn-secondary">Registrarse</button>
+        <div id="loginError" class="error-msg"></div>
     </div>
 </div>
 
-<div id="registroContainer" class="login-container hidden">
-    <div class="login-box">
-        <h2>✨ Registro</h2>
+<!-- Pantalla Registro -->
+<div id="registroContainer" class="modal-overlay hidden">
+    <div class="auth-card">
+        <h2>✨ Crear cuenta</h2>
         <input type="text" id="regUsername" placeholder="Usuario">
         <input type="password" id="regPassword" placeholder="Contraseña">
-        <button id="btnRegistrar" class="btn-primary" style="width:100%; margin-bottom:10px;">Registrar</button>
-        <button id="btnBackLogin" class="btn-secondary" style="width:100%;">Volver</button>
-        <div id="regError" class="error"></div>
+        <button id="btnRegistrar" class="btn-primary">Registrar</button>
+        <button id="btnBackLogin" class="btn-secondary">Volver</button>
+        <div id="regError" class="error-msg"></div>
     </div>
 </div>
 
 <!-- App principal -->
 <div id="appContainer" class="hidden">
     <div class="container">
-        <header>
-            <div class="logo">🎧 StreamFlix AI</div>
-            <div class="user-info">
-                <span id="userName"></span>
-                <button id="btnLogout" class="btn-small">Cerrar sesión</button>
+        <div class="header">
+            <div class="logo">
+                <i class="fab fa-spotify"></i> StreamFlix AI
             </div>
-        </header>
-
-        <div class="section">
-            <h2>🔍 Recomendaciones por Similitud</h2>
-            <div id="similitudCards" class="cards">Cargando...</div>
+            <div class="user-info">
+                <span><i class="fas fa-user-circle"></i> <span id="userName"></span></span>
+                <button id="btnLogout" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            </div>
         </div>
 
+        <!-- Sección similitud -->
         <div class="section">
-            <h2>🌳 Recomendaciones con Árbol de Decisión (IA)</h2>
-            <div id="arbolCards" class="cards">Cargando...</div>
+            <h2><i class="fas fa-users"></i> Recomendaciones por Similitud</h2>
+            <div id="similitudCards" class="cards-grid">Cargando...</div>
         </div>
 
+        <!-- Sección árbol decisión -->
         <div class="section">
-            <h2>🎵 Catálogo General</h2>
-            <div id="catalogoCards" class="cards">Cargando...</div>
+            <h2><i class="fas fa-code-branch"></i> Árbol de Decisión (IA)</h2>
+            <div id="arbolCards" class="cards-grid">Cargando...</div>
         </div>
 
+        <!-- Catálogo general -->
         <div class="section">
-            <h2>🔄 Playlist Recursiva</h2>
-            <button id="btnRecursivo" class="btn-primary">Generar Playlist (profundidad 5)</button>
-            <div id="recursivoCards" class="cards" style="margin-top: 20px;"></div>
+            <h2><i class="fas fa-music"></i> Catálogo General</h2>
+            <div id="catalogoCards" class="cards-grid">Cargando...</div>
+        </div>
+
+        <!-- Playlist recursiva -->
+        <div class="section">
+            <h2><i class="fas fa-random"></i> Playlist Recursiva</h2>
+            <button id="btnRecursivo" class="btn-recursive"><i class="fas fa-fan"></i> Generar playlist (profundidad 5)</button>
+            <div id="recursivoCards" class="cards-grid" style="margin-top: 25px;"></div>
         </div>
     </div>
 
-    <!-- Reproductor flotante -->
-    <div id="floatingPlayer" class="floating-player hidden">
-        <div class="player-info">
-            <img id="playerImg" src="https://picsum.photos/id/100/50" alt="portada">
-            <div class="player-text">
-                <div id="playerTitle">Selecciona una canción</div>
-                <div id="playerArtist">-</div>
+    <!-- Reproductor tipo barra inferior (similar a Spotify) -->
+    <div id="floatingPlayer" class="player-bar hidden">
+        <div class="player-content">
+            <div class="player-track">
+                <img id="playerImg" src="https://picsum.photos/id/100/50" alt="portada">
+                <div class="player-track-info">
+                    <div id="playerTitle" class="player-track-title">Selecciona una canción</div>
+                    <div id="playerArtist" class="player-track-artist">-</div>
+                </div>
             </div>
-        </div>
-        <div class="audio-controls">
-            <audio id="audioPlayer" controls></audio>
+            <div class="player-controls">
+                <audio id="audioPlayer" controls></audio>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ==================== VARIABLES GLOBALES ====================
+    // === Mismo backend: funciones originales mejoradas visualmente ===
     let currentUser = null;
     let todasCanciones = [];
 
-    // ==================== FUNCIONES AUXILIARES ====================
+    // toast notificaciones
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notify';
+        toast.style.backgroundColor = isError ? '#e74c3c' : '#1DB954';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
     async function fetchJson(url, options = {}) {
         const res = await fetch(url, options);
         if (!res.ok) {
@@ -360,6 +607,7 @@
         document.getElementById('loginContainer').classList.remove('hidden');
         document.getElementById('registroContainer').classList.add('hidden');
         document.getElementById('appContainer').classList.add('hidden');
+        document.getElementById('floatingPlayer').classList.add('hidden');
         document.getElementById('loginError').innerText = '';
     }
 
@@ -369,7 +617,6 @@
         document.getElementById('regError').innerText = '';
     }
 
-    // ==================== LOGIN / REGISTRO ====================
     async function login() {
         const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
@@ -390,6 +637,7 @@
             }
         } catch(e) {
             document.getElementById('loginError').innerText = 'Error de conexión: ' + e.message;
+            showToast('Error de conexión', true);
         }
     }
 
@@ -408,11 +656,12 @@
             });
             if (result === 'ok') {
                 await cargarUsuarioActual();
+                showToast('¡Registro exitoso!');
             } else {
                 document.getElementById('regError').innerText = 'El usuario ya existe';
             }
         } catch(e) {
-            document.getElementById('regError').innerText = 'Error de conexión: ' + e.message;
+            document.getElementById('regError').innerText = 'Error: ' + e.message;
         }
     }
 
@@ -447,13 +696,12 @@
         }
     }
 
-    // ==================== CARGA DE DATOS ====================
     async function cargarTodasCanciones() {
         try {
             todasCanciones = await fetchJson('/api/canciones/todas') || [];
             console.log('Catálogo cargado:', todasCanciones.length);
         } catch(e) {
-            console.error('Error cargando catálogo:', e);
+            console.error('Error catálogo:', e);
             todasCanciones = [];
         }
     }
@@ -474,42 +722,44 @@
     function mostrarCatalogoGeneral() {
         const container = document.getElementById('catalogoCards');
         if (container && todasCanciones.length) {
-            renderCards(todasCanciones.slice(0, 30), 'catalogoCards'); // Muestra hasta 30
+            renderCards(todasCanciones.slice(0, 30), 'catalogoCards');
         }
     }
 
+    // Render moderno con iconos y estructura mejorada
     function renderCards(canciones, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
         if (!canciones.length) {
-            container.innerHTML = '<div class="loading">No hay canciones aún. ¡Da like para recibir recomendaciones!</div>';
+            container.innerHTML = '<div class="loading-skeleton"><i class="fas fa-info-circle"></i> No hay canciones aún. ¡Da like para recibir recomendaciones!</div>';
             return;
         }
         container.innerHTML = canciones.map(c => `
-            <div class="card" data-id="${c.id}">
-                <img src="${c.portadaUrl || 'https://picsum.photos/id/100/200'}" 
+            <div class="music-card" data-id="${c.id}">
+                <img class="card-img" src="${c.portadaUrl || 'https://picsum.photos/id/100/200'}" 
                      onerror="this.src='https://picsum.photos/id/100/200'">
                 <div class="card-info">
                     <h3>${escapeHtml(c.titulo)}</h3>
                     <p>${escapeHtml(c.artista)} • ${escapeHtml(c.genero)}</p>
-                    <button class="like-btn" data-id="${c.id}">❤️ Like</button>
+                    <button class="like-button" data-id="${c.id}"><i class="fas fa-heart"></i> Like</button>
                 </div>
             </div>
         `).join('');
 
-        container.querySelectorAll('.card').forEach(card => {
+        // eventos
+        container.querySelectorAll('.music-card').forEach(card => {
             const id = parseInt(card.dataset.id);
             card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('like-btn')) {
+                if (!e.target.classList.contains('like-button') && !e.target.closest('.like-button')) {
                     reproducirCancion(id);
                 }
             });
         });
-        container.querySelectorAll('.like-btn').forEach(btn => {
+        container.querySelectorAll('.like-button').forEach(btn => {
             const id = parseInt(btn.dataset.id);
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                darLike(id);
+                await darLike(id);
             });
         });
     }
@@ -527,13 +777,15 @@
     async function darLike(id) {
         try {
             await fetch(`/api/like/${id}`, { method: 'POST' });
-            await cargarRecomendaciones();
+            showToast('❤️ Cancion agregada a favoritas');
+            await cargarRecomendaciones();  // refresca las recomendaciones
         } catch(e) {
             console.error('Error al dar like:', e);
+            showToast('Error al dar like', true);
         }
     }
 
-    // ==================== REPRODUCCIÓN (AUDIO LOCAL) ====================
+    // Reproductor (barra inferior con audio)
     function reproducirCancion(id) {
         const cancion = todasCanciones.find(c => c.id === id);
         if (!cancion) return;
@@ -552,26 +804,27 @@
         audioEl.play().catch(e => console.log('Error reproduciendo audio:', e));
     }
 
-    // ==================== PLAYLIST RECURSIVA ====================
     async function generarPlaylistRecursiva() {
         const container = document.getElementById('recursivoCards');
-        container.innerHTML = '<div class="loading">Generando playlist recursiva...</div>';
+        container.innerHTML = '<div class="loading-skeleton"><i class="fas fa-spinner fa-pulse"></i> Generando playlist recursiva...</div>';
         if (todasCanciones.length === 0) await cargarTodasCanciones();
         if (!todasCanciones.length) {
-            container.innerHTML = '<div class="loading">No hay canciones disponibles</div>';
+            container.innerHTML = '<div class="loading-skeleton">No hay canciones disponibles</div>';
             return;
         }
         const semilla = todasCanciones[0].id;
         try {
             const lista = await fetchJson(`/api/playlist/recursiva/${semilla}/5`);
-            if (lista && lista.length) renderCards(lista, 'recursivoCards');
-            else container.innerHTML = '<div class="loading">No se pudo generar playlist</div>';
+            if (lista && lista.length) {
+                renderCards(lista, 'recursivoCards');
+                showToast('🎶 Playlist recursiva generada');
+            } else container.innerHTML = '<div class="loading-skeleton">No se pudo generar playlist</div>';
         } catch(e) {
-            container.innerHTML = '<div class="loading">Error al generar playlist</div>';
+            container.innerHTML = '<div class="loading-skeleton">Error al generar playlist</div>';
         }
     }
 
-    // ==================== EVENTOS ====================
+    // Eventos iniciales
     document.getElementById('btnLogin').addEventListener('click', login);
     document.getElementById('btnShowRegistro').addEventListener('click', mostrarRegistro);
     document.getElementById('btnRegistrar').addEventListener('click', registrar);
@@ -581,6 +834,18 @@
 
     window.onload = () => {
         cargarUsuarioActual();
+        // generar partículas dinámicas (efecto 3d sutil)
+        for (let i = 0; i < 40; i++) {
+            let particle = document.createElement('div');
+            particle.classList.add('particle');
+            let size = Math.random() * 6 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = Math.random() * 20 + 10 + 's';
+            document.body.appendChild(particle);
+        }
     };
 </script>
 </body>
