@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.music.data.DatosFicticios;
 import com.example.music.model.Cancion;
@@ -20,13 +21,14 @@ public class UsuarioService {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private InteraccionRepository interaccionRepository;
 
+    @Transactional
     public Usuario registrarUsuario(String username, String password) {
+        // Verificación doble para evitar duplicate key en registro simultáneo
         if (usuarioRepository.findByUsername(username).isPresent()) return null;
-        
+
         Usuario u = new Usuario(null, username, password, username, 18);
         u = usuarioRepository.save(u);
 
-        // Likes iniciales con canciones populares
         final Long userId = u.getId();
         List<Cancion> populares = DatosFicticios.getCanciones().stream()
             .sorted((a, b) -> Integer.compare(b.getPopularidad(), a.getPopularidad()))
